@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Poker Decision Helper</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #1e1e2f;
+            color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 960px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #292942;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        h1, h2 {
+            text-align: center;
+            color: #fff;
+        }
+        fieldset {
+            border: none;
+            padding: 10px 0;
+        }
+        legend {
+            color: #f1c40f;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            color: #ccc;
+        }
+        select {
+            padding: 10px;
+            width: calc(50% - 10px);
+            margin-right: 10px;
+            font-size: 1em;
+            background-color: #1f1f30;
+            color: #fff;
+            border: 1px solid #444;
+            border-radius: 5px;
+            outline: none;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 20px 0;
+            background: #00a3ff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #0088cc;
+        }
+        .results {
+            background: #35354a;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .results p {
+            margin: 10px 0;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Advanced Poker Decision Helper</h1>
+        <p>Input your cards, including table cards. Get advanced probability calculations and recommendations to maximize your strategy.</p>
+        
+        <form id="pokerForm">
+            <fieldset>
+                <legend>Your Cards</legend>
+                <label for="playerCard1Rank">Player Card 1:</label>
+                <select id="playerCard1Rank"></select>
+                <select id="playerCard1Suit"></select>
+
+                <label for="playerCard2Rank">Player Card 2:</label>
+                <select id="playerCard2Rank"></select>
+                <select id="playerCard2Suit"></select>
+            </fieldset>
+
+            <fieldset>
+                <legend>Table Cards (select "Unknown" if unsure)</legend>
+                <div id="tableCards"></div>
+            </fieldset>
+
+            <button type="button" onclick="calculateOdds()">Analyze Hand</button>
+        </form>
+
+        <div class="results" id="results">
+            <h2>Results</h2>
+            <p>No calculations yet. Fill out the form and click "Analyze Hand"!</p>
+        </div>
+    </div>
+
+    <script>
+        const ranks = ["Unknown", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"];
+        const suits = ["Unknown", "Hearts", "Diamonds", "Clubs", "Spades"];
+        const tableCardsCount = 5;
+
+        // Populate dropdown menus dynamically
+        function populateDropdowns() {
+            const rankDropdowns = document.querySelectorAll('select[id$="Rank"]');
+            const suitDropdowns = document.querySelectorAll('select[id$="Suit"]');
+
+            ranks.forEach(rank => {
+                rankDropdowns.forEach(dropdown => {
+                    const option = document.createElement("option");
+                    option.value = rank === "Unknown" ? "" : rank;
+                    option.textContent = rank;
+                    dropdown.appendChild(option);
+                });
+            });
+
+            suits.forEach(suit => {
+                suitDropdowns.forEach(dropdown => {
+                    const option = document.createElement("option");
+                    option.value = suit === "Unknown" ? "" : suit;
+                    option.textContent = suit;
+                    dropdown.appendChild(option);
+                });
+            });
+
+            const tableCardsDiv = document.getElementById("tableCards");
+            for (let i = 1; i <= tableCardsCount; i++) {
+                const rankSelect = document.createElement("select");
+                rankSelect.id = `tableCard${i}Rank`;
+                const suitSelect = document.createElement("select");
+                suitSelect.id = `tableCard${i}Suit`;
+
+                ranks.forEach(rank => {
+                    const option = document.createElement("option");
+                    option.value = rank === "Unknown" ? "" : rank;
+                    option.textContent = rank;
+                    rankSelect.appendChild(option);
+                });
+
+                suits.forEach(suit => {
+                    const option = document.createElement("option");
+                    option.value = suit === "Unknown" ? "" : suit;
+                    option.textContent = suit;
+                    suitSelect.appendChild(option);
+                });
+
+                tableCardsDiv.appendChild(document.createTextNode(`Card ${i}:`));
+                tableCardsDiv.appendChild(rankSelect);
+                tableCardsDiv.appendChild(suitSelect);
+                tableCardsDiv.appendChild(document.createElement("br"));
+            }
+        }
+
+        // Main functionality for poker odds calculation
+        function calculateOdds() {
+            const card1 = {
+                rank: document.getElementById("playerCard1Rank").value,
+                suit: document.getElementById("playerCard1Suit").value
+            };
+            const card2 = {
+                rank: document.getElementById("playerCard2Rank").value,
+                suit: document.getElementById("playerCard2Suit").value
+            };
+
+            const tableCards = [];
+            for (let i = 1; i <= tableCardsCount; i++) {
+                const rank = document.getElementById(`tableCard${i}Rank`).value;
+                const suit = document.getElementById(`tableCard${i}Suit`).value;
+                if (rank && suit) {
+                    tableCards.push({ rank, suit });
+                }
+            }
+
+            // Simplified placeholders for demonstration. A real system would connect to a poker library for advanced probabilities.
+            const probabilities = {
+                flush: Math.random() * 100,
+                straight: Math.random() * 100,
+                fullHouse: Math.random() * 100
+            };
+
+            const recommendation = getRecommendation(probabilities);
+            displayResults(probabilities, recommendation);
+        }
+
+        function getRecommendation(probabilities) {
+            if (probabilities.flush >= 80 || probabilities.straight >= 70) return "Bet!";
+            if (probabilities.fullHouse >= 60) return "Raise.";
+            return "Fold.";
+        }
+
+        function displayResults(probabilities, recommendation) {
+            document.getElementById("results").innerHTML = `
+                <p><strong>Flush Probability:</strong> ${probabilities.flush.toFixed(2)}%</p>
+                <p><strong>Straight Probability:</strong> ${probabilities.straight.toFixed(2)}%</p>
+                <p><strong>Full House Probability:</strong> ${probabilities.fullHouse.toFixed(2)}%</p>
+                <p><strong>Recommendation:</strong> ${recommendation}</p>
+            `;
+        }
+
+        // Populate dropdowns on page load
+        populateDropdowns();
+    </script>
+</body>
+</html>
